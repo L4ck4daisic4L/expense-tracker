@@ -11,31 +11,27 @@
       background-color: #22252a;
       color: #ffffff;
     }
-
     .table {
       color: #ffffff;
       background-color: transparent;
+      border-radius: 10px;
+      overflow: hidden;
     }
-
     .table th,
     .table td {
-      border-color: #444; /* Optional: darker borders */
+      border-color: #444;
     }
-
     .btn-outline-light {
       border-color: #ffffff;
       color: #ffffff;
     }
-
     .btn-outline-light:hover {
       background-color: #ffffff;
       color: #22252a;
     }
-
     .container {
       max-width: 1000px;
     }
-
     .btn-container {
       display: flex;
       justify-content: flex-end;
@@ -51,9 +47,7 @@
           <th>Month</th>
           <th>Income</th>
           <th>Expense</th>
-          <th>Groceries</th>
-          <th>Total</th>
-          <th>Saved!</th> <!-- Changed to Saved! -->
+          <th>Balance</th>
         </tr>
       </thead>
       <tbody id="summary-table">
@@ -67,23 +61,30 @@
 
   <script>
     const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
-    const monthNames = { jan: 'January', feb: 'February', mar: 'March', apr: 'April', may: 'May', jun: 'June', jul: 'July', aug: 'August', sep: 'September', oct: 'October', nov: 'November', dec: 'December' };
+    const monthNames = { 
+      jan: 'January', feb: 'February', mar: 'March', apr: 'April', may: 'May', jun: 'June', 
+      jul: 'July', aug: 'August', sep: 'September', oct: 'October', nov: 'November', dec: 'December' 
+    };
 
     let summaryData = [];
     months.forEach(month => {
-      let data = JSON.parse(localStorage.getItem(month)) || { income: [], expenses: [], groceries: [] };
-      const totalIncome = data.income.reduce((sum, e) => sum + e.amount, 0);
-      const totalExpenses = data.expenses.reduce((sum, e) => sum + e.amount, 0);
-      const totalGroceries = data.groceries.reduce((sum, e) => sum + e.amount, 0);
-      const total = totalExpenses + totalGroceries;  // Total is Expenses + Groceries
-      const saved = totalIncome - total;  // Saved is Income - Total
+      let data = JSON.parse(localStorage.getItem(`budget_${month}`)) || { incomeList: [], expenseList: [], groceryList: [] };
+      // Income: sum raw numbers
+      const totalIncome = data.incomeList.reduce((sum, amount) => sum + (parseFloat(amount) || 0), 0);
+      // Expenses: sum expense amounts
+      const totalExpenses = data.expenseList.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+      // Groceries: sum grocery amounts
+      const totalGroceries = data.groceryList.reduce((sum, g) => sum + (parseFloat(g.amount) || 0), 0);
+      // Total expenses include groceries
+      const totalAllExpenses = totalExpenses + totalGroceries;
+      // Balance: income minus all expenses
+      const balance = totalIncome - totalAllExpenses;
+      
       summaryData.push({ 
         month: monthNames[month], 
         income: totalIncome, 
-        expense: totalExpenses, 
-        groceries: totalGroceries, 
-        total: total, 
-        saved: saved 
+        expense: totalAllExpenses, 
+        total: balance 
       });
     });
 
@@ -91,14 +92,13 @@
     summaryData.forEach(data => {
       const row = `<tr>
         <td>${data.month}</td>
-        <td>₱${data.income.toLocaleString()}</td>
-        <td>₱${data.expense.toLocaleString()}</td>
-        <td>₱${data.groceries.toLocaleString()}</td>
-        <td>₱${data.total.toLocaleString()}</td>
-        <td>₱${data.saved.toLocaleString()}</td> <!-- Updated column -->
+        <td>₱${data.income.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+        <td>₱${data.expense.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+        <td>₱${data.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
       </tr>`;
       summaryTable.innerHTML += row;
     });
   </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9303a58478866da9',t:'MTc0NDYzODM1Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
