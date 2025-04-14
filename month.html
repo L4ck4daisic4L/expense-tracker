@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Month - Income and Expenses Tracker</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <style>
+    body {
+      background-color: #212529;
+      color: #f8f9fa;
+    }
+    .form-control, .table {
+      background-color: #343a40;
+      color: #f8f9fa;
+    }
+    .amount-green { color: #28a745; }
+    .amount-red { color: #dc3545; }
+    .btn-custom { margin: 5px; }
+    .editable-cell:focus { outline: none; border: 1px solid #6c757d; }
+  </style>
+</head>
+<body>
+  <div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center">
+      <h2 id="month-title">Month</h2>
+      <a href="index.html" class="btn btn-outline-light">Back</a>
+    </div>
+
+    <!-- Income Section -->
+    <div class="mt-4">
+      <h4>Income</h4>
+      <div class="input-group mb-3">
+        <span class="input-group-text">₱</span>
+        <input type="number" id="income-input" class="form-control" placeholder="Enter amount">
+        <button class="btn btn-success" onclick="addIncome()">Save</button>
+      </div>
+      <table class="table table-bordered">
+        <thead><tr><th>Amount</th><th>Delete</th></tr></thead>
+        <tbody id="income-table"></tbody>
+      </table>
+    </div>
+
+    <!-- Expenses Section -->
+    <div class="mt-4">
+      <h4>Expenses</h4>
+      <button class="btn btn-outline-light btn-sm mb-2" onclick="addExpenseRow()">+ Add Expense</button>
+      <table class="table table-bordered">
+        <thead><tr><th>Description</th><th>Amount</th><th>Delete</th></tr></thead>
+        <tbody id="expenses-table"></tbody>
+      </table>
+    </div>
+
+    <!-- Groceries Section -->
+    <div class="mt-4">
+      <h4>Groceries</h4>
+      <button class="btn btn-outline-light btn-sm mb-2" onclick="addGroceryRow()">+ Add Item</button>
+      <table class="table table-bordered">
+        <thead><tr><th>Description</th><th>Amount</th><th>Delete</th></tr></thead>
+        <tbody id="groceries-table"></tbody>
+      </table>
+    </div>
+
+    <!-- Totals -->
+    <div class="mt-4">
+      <h5>Total Expenses: <span id="total-expenses" class="amount-red">₱0</span></h5>
+      <h5>Running Balance: <span id="running-balance">₱0</span></h5>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const monthId = params.get('month');
+    const storageKey = monthId;
+
+    const monthNames = {
+      jan: 'January', feb: 'February', mar: 'March', apr: 'April',
+      may: 'May', jun: 'June', jul: 'July', aug: 'August',
+      sep: 'September', oct: 'October', nov: 'November', dec: 'December'
+    };
+
+    document.getElementById('month-title').textContent = monthNames[monthId] || 'Month';
+
+    let data = JSON.parse(localStorage.getItem(storageKey)) || {
+      income: [], expenses: [], groceries: []
+    };
+
+    function saveData() {
+      localStorage.setItem(storageKey, JSON.stringify(data));
+      renderTables();
+    }
+
+    function addIncome() {
+      const value = parseFloat(document.getElementById('income-input').value);
+      if (!isNaN(value)) {
+        data.income.push({ amount: value });
+        document.getElementById('income-input').value = '';
+        saveData();
+      }
+    }
+
+    function deleteEntry(section, index) {
+      data[section].splice(index, 1);
+      saveData();
+    }
+
+    function addExpenseRow() {
+      data.expenses.push({ desc: '', amount: 0 });
+      saveData();
+    }
+
+    function addGroceryRow() {
+      data.groceries.push({ desc: '', amount: 0 });
+      saveData();
+    }
+
+    function makeEditable(cell, section, index, key) {
+      const originalValue = data[section][index][key];
+      const input = document.createElement('input');
+      input.value = originalValue;
+      input.className = 'form-control editable-cell';
+      input.addEventListener('blur', () => {
+        let newValue = input.value;
+        if (key === 'amount') {
+          newValue = parseFloat(newValue);
+          if (isNaN(newValue)) newValue = 0;
+        }
+        data[section][index][key] = newValue;
+        saveData();
+      });
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') input.blur();
+      });
+      cell.textContent = '';
+      cell.appendChild(input);
+      input.focus();
+    }
+
+    function renderTables() {
+      const incomeTable = document.getElementById('income-table');
+      const expensesTable = document.getElementById('expenses-table');
+      const groceriesTable = document.getElementById('groceries-table');
+
+      incomeTable.innerHTML = data.income.map((e, i) => `
+        <tr>
+          <td class="amount-green">₱${e.amount.toLocaleString()}</td>
+          <td><button class="btn btn-sm btn-danger" onclick="deleteEntry('income', ${i})">Delete</button></td>
+        </tr>`).join('');
+
+      expensesTable.innerHTML = data.expenses.map((e, i) => `
+        <tr>
+          <td onclick="makeEditable(this, 'expenses', ${i}, 'desc')">${e.desc}</td>
+          <td class="amount-red" onclick="makeEditable(this, 'expenses', ${i}, 'amount')">₱${parseFloat(e.amount).toLocaleString()}</td>
+          <td><button class="btn btn-sm btn-danger" onclick="deleteEntry('expenses', ${i})">Delete</button></td>
+        </tr>`).join('');
+
+      groceriesTable.innerHTML = data.groceries.map((e, i) => `
+        <tr>
+          <td onclick="makeEditable(this, 'groceries', ${i}, 'desc')">${e.desc}</td>
+          <td class="amount-red" onclick="makeEditable(this, 'groceries', ${i}, 'amount')">₱${parseFloat(e.amount).toLocaleString()}</td>
+          <td><button class="btn btn-sm btn-danger" onclick="deleteEntry('groceries', ${i})">Delete</button></td>
+        </tr>`).join('');
+
+      const totalExpenses = [...data.expenses, ...data.groceries].reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+      const totalIncome = data.income.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+      const runningBalance = totalIncome - totalExpenses;
+
+      document.getElementById('total-expenses').textContent = `₱${totalExpenses.toLocaleString()}`;
+      const rbEl = document.getElementById('running-balance');
+      rbEl.textContent = `₱${runningBalance.toLocaleString()}`;
+      rbEl.className = runningBalance >= 0 ? 'amount-green' : 'amount-red';
+    }
+
+    renderTables();
+  </script>
+</body>
+</html>

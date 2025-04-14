@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Summary</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles/styles.css">
+  <style>
+    body {
+      background-color: #22252a;
+      color: #ffffff;
+    }
+
+    .table {
+      color: #ffffff;
+      background-color: transparent;
+    }
+
+    .table th,
+    .table td {
+      border-color: #444; /* Optional: darker borders */
+    }
+
+    .btn-outline-light {
+      border-color: #ffffff;
+      color: #ffffff;
+    }
+
+    .btn-outline-light:hover {
+      background-color: #ffffff;
+      color: #22252a;
+    }
+
+    .container {
+      max-width: 1000px;
+    }
+
+    .btn-container {
+      display: flex;
+      justify-content: flex-end;
+    }
+  </style>
+</head>
+<body>
+  <div class="container py-4">
+    <h1>Monthly Summary</h1>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th>Income</th>
+          <th>Expense</th>
+          <th>Groceries</th>
+          <th>Total</th>
+          <th>Saved!</th> <!-- Changed to Saved! -->
+        </tr>
+      </thead>
+      <tbody id="summary-table">
+        <!-- Dynamic table rows will be added here -->
+      </tbody>
+    </table>
+    <div class="btn-container">
+      <a href="index.html" class="btn btn-outline-light">Back</a>
+    </div>
+  </div>
+
+  <script>
+    const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+    const monthNames = { jan: 'January', feb: 'February', mar: 'March', apr: 'April', may: 'May', jun: 'June', jul: 'July', aug: 'August', sep: 'September', oct: 'October', nov: 'November', dec: 'December' };
+
+    let summaryData = [];
+    months.forEach(month => {
+      let data = JSON.parse(localStorage.getItem(month)) || { income: [], expenses: [], groceries: [] };
+      const totalIncome = data.income.reduce((sum, e) => sum + e.amount, 0);
+      const totalExpenses = data.expenses.reduce((sum, e) => sum + e.amount, 0);
+      const totalGroceries = data.groceries.reduce((sum, e) => sum + e.amount, 0);
+      const total = totalExpenses + totalGroceries;  // Total is Expenses + Groceries
+      const saved = totalIncome - total;  // Saved is Income - Total
+      summaryData.push({ 
+        month: monthNames[month], 
+        income: totalIncome, 
+        expense: totalExpenses, 
+        groceries: totalGroceries, 
+        total: total, 
+        saved: saved 
+      });
+    });
+
+    const summaryTable = document.getElementById("summary-table");
+    summaryData.forEach(data => {
+      const row = `<tr>
+        <td>${data.month}</td>
+        <td>₱${data.income.toLocaleString()}</td>
+        <td>₱${data.expense.toLocaleString()}</td>
+        <td>₱${data.groceries.toLocaleString()}</td>
+        <td>₱${data.total.toLocaleString()}</td>
+        <td>₱${data.saved.toLocaleString()}</td> <!-- Updated column -->
+      </tr>`;
+      summaryTable.innerHTML += row;
+    });
+  </script>
+</body>
+</html>
