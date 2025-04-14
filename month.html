@@ -3,175 +3,566 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Month - Income and Expenses Tracker</title>
+  <title>Month</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <style>
     body {
-      background-color: #212529;
+      background-color: #22252a;
       color: #f8f9fa;
+      position: relative;
+      margin: 0;
+      padding: 0;
     }
-    .form-control, .table {
+    h1 {
+      color: #f8f9fa;
+      margin-bottom: 20px;
+    }
+    .btn-primary {
+      background-color: #0d6efd;
+      border-color: #0d6efd;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+    .btn-primary:hover {
+      background-color: #0b5ed7;
+    }
+    .btn-info {
+      background-color: #008f53;
+      border-color: #008f53;
+      color: #fff;
+    }
+    .btn-info:hover {
+      background-color: #007747;
+    }
+    .list-group-item {
+      background-color: #2c2f36;
+      border: 1px solid #444;
+      color: #f8f9fa;
+      margin-bottom: 8px;
+    }
+    .list-group-item:hover {
       background-color: #343a40;
-      color: #f8f9fa;
     }
-    .amount-green { color: #28a745; }
-    .amount-red { color: #dc3545; }
-    .btn-custom { margin: 5px; }
-    .editable-cell:focus { outline: none; border: 1px solid #6c757d; }
+    hr {
+      border-color: #444;
+    }
+    .income-section, .expense-section, .grocery-section {
+      margin-top: 20px;
+    }
+    .back-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: #22252a;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 12px;
+      border: 1px solid #444;
+      text-decoration: none;
+    }
+    .back-btn:hover {
+      background-color: #343a40;
+    }
+    .btn-add-expense {
+      background-color: #dc3545;
+      color: white;
+      border-radius: 8px;
+      width: 150px;
+      margin-bottom: 10px;
+    }
+    .btn-add-expense:hover {
+      background-color: #c82333;
+    }
+    .btn-add-grocery {
+      background-color: #28a745;
+      color: white;
+      border-radius: 8px;
+      width: 150px;
+      margin-bottom: 10px;
+    }
+    .btn-add-grocery:hover {
+      background-color: #218838;
+    }
+    .expense-header, .grocery-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .expense-header h4, .grocery-header h4 {
+      margin-bottom: 0;
+    }
+    .bottom-left-info {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background-color: #2c2f36;
+      color: #f8f9fa;
+      padding: 10px 15px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      font-size: 14px;
+    }
+    .bottom-left-info p {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+    .form-control, select.form-control {
+      font-size: 14px;
+      padding: 8px;
+    }
+    .table th, .table td {
+      padding: 8px;
+      vertical-align: middle;
+    }
   </style>
 </head>
 <body>
   <div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center">
-      <h2 id="month-title">Month</h2>
-      <a href="index.html" class="btn btn-outline-light">Back</a>
-    </div>
+    <!-- Back Button -->
+    <a href="index.html" class="back-btn">Back</a>
 
-    <!-- Income Section -->
-    <div class="mt-4">
+    <!-- Dynamic Month Title -->
+    <h1 class="text-center" id="month-title">March</h1>
+
+    <!-- Income Entry Section -->
+    <div class="income-section">
       <h4>Income</h4>
       <div class="input-group mb-3">
         <span class="input-group-text">₱</span>
         <input type="number" id="income-input" class="form-control" placeholder="Enter amount">
         <button class="btn btn-success" onclick="addIncome()">Save</button>
       </div>
-      <table class="table table-bordered">
-        <thead><tr><th>Amount</th><th>Delete</th></tr></thead>
-        <tbody id="income-table"></tbody>
+      <div id="income-list">
+        <!-- Dynamic income entries will be shown here -->
+      </div>
+
+      <!-- Table to display incomes -->
+      <div class="table-wrapper">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Income</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="income-table-body">
+            <!-- Dynamic rows will be added here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Expense Section -->
+    <div class="expense-section">
+      <div class="expense-header">
+        <h4>Expenses</h4>
+        <button class="btn btn-add-expense" onclick="addExpenseRow()">+ Add Expense</button>
+      </div>
+
+      <!-- Table for expenses -->
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Main Category</th>
+            <th>Sub Category</th>
+            <th>Amount</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="expense-table-body">
+          <!-- Expense rows will be added here -->
+        </tbody>
       </table>
     </div>
 
-    <!-- Expenses Section -->
-    <div class="mt-4">
-      <h4>Expenses</h4>
-      <button class="btn btn-outline-light btn-sm mb-2" onclick="addExpenseRow()">+ Add Expense</button>
-      <table class="table table-bordered">
-        <thead><tr><th>Description</th><th>Amount</th><th>Delete</th></tr></thead>
-        <tbody id="expenses-table"></tbody>
-      </table>
-    </div>
+    <!-- Grocery Section -->
+    <div class="grocery-section">
+      <div class="grocery-header">
+        <h4>Groceries</h4>
+        <button class="btn btn-add-grocery" onclick="addGroceryRow()">+ Add Entry</button>
+      </div>
 
-    <!-- Groceries Section -->
-    <div class="mt-4">
-      <h4>Groceries</h4>
-      <button class="btn btn-outline-light btn-sm mb-2" onclick="addGroceryRow()">+ Add Item</button>
-      <table class="table table-bordered">
-        <thead><tr><th>Description</th><th>Amount</th><th>Delete</th></tr></thead>
-        <tbody id="groceries-table"></tbody>
+      <!-- Table for groceries -->
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Quantity</th>
+            <th>Amount</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="grocery-table-body">
+          <!-- Grocery rows will be added here -->
+        </tbody>
       </table>
-    </div>
-
-    <!-- Totals -->
-    <div class="mt-4">
-      <h5>Total Expenses: <span id="total-expenses" class="amount-red">₱0</span></h5>
-      <h5>Running Balance: <span id="running-balance">₱0</span></h5>
     </div>
   </div>
 
+  <!-- Bottom-left corner info (Income, Expense, Balance) -->
+  <div class="bottom-left-info">
+    <p><strong>Income:</strong> ₱ <span id="income-total">0.00</span></p>
+    <p><strong>Expense:</strong> ₱ <span id="expense-total">0.00</span></p>
+    <p><strong>Balance:</strong> ₱ <span id="balance-total">0.00</span></p>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const monthId = params.get('month');
-    const storageKey = monthId;
-
-    const monthNames = {
-      jan: 'January', feb: 'February', mar: 'March', apr: 'April',
-      may: 'May', jun: 'June', jul: 'July', aug: 'August',
-      sep: 'September', oct: 'October', nov: 'November', dec: 'December'
+    const categories = {
+      "Housing": [
+        "Rent/Mortgage",
+        "Property Taxes",
+        "Home Insurance",
+        "Utilities (Water, Electricity, Gas, etc.)",
+        "Home Repairs/Maintenance",
+        "HOA Fees (Homeowners Association)"
+      ],
+      "Transportation": [
+        "Gas/Fuel",
+        "Car Loan Payments",
+        "Car Insurance",
+        "Public Transportation",
+        "Vehicle Maintenance (Oil Changes, Repairs)",
+        "Parking/Tolls",
+        "Ride-sharing (Uber, Lyft, etc.)"
+      ],
+      "Food": [
+        "Dining Out",
+        "Coffee/Takeout",
+        "Meal Prep Services"
+      ],
+      "Health & Insurance": [
+        "Health Insurance",
+        "Medical Bills/Co-pays",
+        "Dental Insurance",
+        "Prescription Medications",
+        "Gym Membership",
+        "Vision Care (Glasses, Contact Lenses, etc.)",
+        "Health/Wellness Products"
+      ],
+      "Personal Care": [
+        "Haircuts",
+        "Skincare Products",
+        "Makeup",
+        "toiletries (Shampoo, Soap, etc.)",
+        "Clothing & Accessories",
+        "Shoes/F stellwear"
+      ],
+      "Entertainment": [
+        "Subscriptions (Netflix, Spotify, etc.)",
+        "Streaming Services (Disney+, Amazon Prime, etc.)",
+        "Movies, Events, Concerts",
+        "Video Games/Subscriptions",
+        "Books, Magazines, Hobbies"
+      ],
+      "Debt Repayments": [
+        "Credit Card Payments",
+        "Personal Loans",
+        "Student Loans",
+        "Other Loan Repayments"
+      ],
+      "Savings & Investments": [
+        "Emergency Fund",
+        "Retirement Savings (401k, IRA)",
+        "Investment Contributions (Stocks, Bonds)",
+        "Education Savings (529 Plan)"
+      ],
+      "Education & Learning": [
+        "Tuition Fees",
+        "Books & Supplies",
+        "Online Courses/Certifications",
+        "Workshops/Conferences"
+      ],
+      "Childcare & Education": [
+        "Daycare",
+        "School Fees",
+        "Extracurricular Activities",
+        "Clothing & Supplies"
+      ],
+      "Pets": [
+        "Pet Food",
+        "Veterinary Bills",
+        "Pet Insurance",
+        "Pet Grooming"
+      ],
+      "Gifts & Donations": [
+        "Birthday Gifts",
+        "Holiday Gifts",
+        "Charitable Donations"
+      ],
+      "Miscellaneous": [
+        "Bank Fees",
+        "Legal Fees",
+        "Subscriptions (Magazines, Memberships)",
+        "Office Supplies",
+        "Emergency Expenses",
+        "Travel Expenses (Hotel, Flights, etc.)"
+      ]
     };
 
-    document.getElementById('month-title').textContent = monthNames[monthId] || 'Month';
+    let incomeList = [];
+    let expenseList = [];
+    let groceryList = [];
+    let currentMonth = '';
 
-    let data = JSON.parse(localStorage.getItem(storageKey)) || {
-      income: [], expenses: [], groceries: []
-    };
-
-    function saveData() {
-      localStorage.setItem(storageKey, JSON.stringify(data));
-      renderTables();
+    // Get the current month from URL
+    function getCurrentMonth() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const month = urlParams.get('month') || 'default';
+      return month;
     }
 
-    function addIncome() {
-      const value = parseFloat(document.getElementById('income-input').value);
-      if (!isNaN(value)) {
-        data.income.push({ amount: value });
-        document.getElementById('income-input').value = '';
-        saveData();
+    // Load data from localStorage
+    function loadData() {
+      currentMonth = getCurrentMonth();
+      const savedData = localStorage.getItem(`budget_${currentMonth}`);
+      if (savedData) {
+        const data = JSON.parse(savedData);
+        incomeList = data.incomeList || [];
+        expenseList = data.expenseList || [];
+        groceryList = data.groceryList || [];
       }
     }
 
-    function deleteEntry(section, index) {
-      data[section].splice(index, 1);
-      saveData();
+    // Save data to localStorage
+    function saveData() {
+      const data = {
+        incomeList,
+        expenseList,
+        groceryList
+      };
+      localStorage.setItem(`budget_${currentMonth}`, JSON.stringify(data));
+    }
+
+    function addIncome() {
+      const incomeInput = document.getElementById('income-input');
+      const incomeAmount = parseFloat(incomeInput.value);
+      
+      if (!isNaN(incomeAmount) && incomeAmount > 0) {
+        incomeList.push(incomeAmount);
+        incomeInput.value = '';
+        displayIncome();
+        updateInfo();
+        saveData(); // Save after adding income
+      } else {
+        alert('Please enter a valid amount.');
+      }
+    }
+
+    function deleteIncome(index) {
+      incomeList.splice(index, 1);
+      displayIncome();
+      updateInfo();
+      saveData(); // Save after deleting income
     }
 
     function addExpenseRow() {
-      data.expenses.push({ desc: '', amount: 0 });
-      saveData();
+      const row = {
+        description: '',
+        mainCategory: '',
+        subCategory: '',
+        amount: 0
+      };
+      expenseList.push(row);
+      displayExpense();
+      saveData(); // Save after adding expense row
+    }
+
+    function deleteExpenseRow(index) {
+      expenseList.splice(index, 1);
+      displayExpense();
+      updateInfo();
+      saveData(); // Save after deleting expense
     }
 
     function addGroceryRow() {
-      data.groceries.push({ desc: '', amount: 0 });
-      saveData();
+      const row = {
+        description: '',
+        quantity: 0,
+        amount: 0
+      };
+      groceryList.push(row);
+      displayGrocery();
+      saveData(); // Save after adding grocery row
     }
 
-    function makeEditable(cell, section, index, key) {
-      const originalValue = data[section][index][key];
-      const input = document.createElement('input');
-      input.value = originalValue;
-      input.className = 'form-control editable-cell';
-      input.addEventListener('blur', () => {
-        let newValue = input.value;
-        if (key === 'amount') {
-          newValue = parseFloat(newValue);
-          if (isNaN(newValue)) newValue = 0;
+    function deleteGroceryRow(index) {
+      groceryList.splice(index, 1);
+      displayGrocery();
+      updateInfo();
+      saveData(); // Save after deleting grocery
+    }
+
+    function displayIncome() {
+      const incomeTableBody = document.getElementById('income-table-body');
+      incomeTableBody.innerHTML = '';
+
+      incomeList.forEach((amount, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>₱ ${amount.toFixed(2)}</td><td><button class="btn btn-danger btn-sm" onclick="deleteIncome(${index})">Delete</button></td>`;
+        incomeTableBody.appendChild(row);
+      });
+    }
+
+    function displayExpense() {
+      const expenseTableBody = document.getElementById('expense-table-body');
+      expenseTableBody.innerHTML = '';
+
+      expenseList.forEach(({ description, mainCategory, subCategory, amount }, index) => {
+        const row = document.createElement('tr');
+
+        // Description input
+        const descriptionTd = document.createElement('td');
+        descriptionTd.innerHTML = `<input type="text" value="${description}" class="form-control" onchange="updateExpenseField(${index}, 'description', this.value)">`;
+
+        // Main Category dropdown
+        const mainCategoryTd = document.createElement('td');
+        const mainCategorySelect = document.createElement('select');
+        mainCategorySelect.className = 'form-control';
+        mainCategorySelect.innerHTML = '<option value="" disabled selected>Select a category</option>';
+        Object.keys(categories).forEach(category => {
+          const option = document.createElement('option');
+          option.value = category;
+          option.textContent = category;
+          if (category === mainCategory) option.selected = true;
+          mainCategorySelect.appendChild(option);
+        });
+        mainCategorySelect.onchange = () => {
+          updateExpenseField(index, 'mainCategory', mainCategorySelect.value);
+          updateExpenseField(index, 'subCategory', ''); // Reset subcategory when main category changes
+          displayExpense(); // Refresh to update subcategory dropdown
+        };
+        mainCategoryTd.appendChild(mainCategorySelect);
+
+        // Sub Category dropdown
+        const subCategoryTd = document.createElement('td');
+        const subCategorySelect = document.createElement('select');
+        subCategorySelect.className = 'form-control';
+        subCategorySelect.innerHTML = '<option value="" disabled selected>Select a subcategory</option>';
+        if (mainCategory && categories[mainCategory]) {
+          categories[mainCategory].forEach(sub => {
+            const option = document.createElement('option');
+            option.value = sub;
+            option.textContent = sub;
+            if (sub === subCategory) option.selected = true;
+            subCategorySelect.appendChild(option);
+          });
         }
-        data[section][index][key] = newValue;
-        saveData();
+        subCategorySelect.onchange = () => {
+          updateExpenseField(index, 'subCategory', subCategorySelect.value);
+        };
+        subCategoryTd.appendChild(subCategorySelect);
+
+        // Amount input
+        const amountTd = document.createElement('td');
+        amountTd.innerHTML = `<input type="number" value="${amount}" class="form-control" onchange="updateExpenseField(${index}, 'amount', this.value)">`;
+
+        // Delete button
+        const actionTd = document.createElement('td');
+        actionTd.innerHTML = `<button class="btn btn-danger btn-sm" onclick="confirmDelete(${index})">Delete</button>`;
+
+        // Append all cells to row
+        row.appendChild(descriptionTd);
+        row.appendChild(mainCategoryTd);
+        row.appendChild(subCategoryTd);
+        row.appendChild(amountTd);
+        row.appendChild(actionTd);
+
+        expenseTableBody.appendChild(row);
       });
-      input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') input.blur();
-      });
-      cell.textContent = '';
-      cell.appendChild(input);
-      input.focus();
     }
 
-    function renderTables() {
-      const incomeTable = document.getElementById('income-table');
-      const expensesTable = document.getElementById('expenses-table');
-      const groceriesTable = document.getElementById('groceries-table');
+    function displayGrocery() {
+      const groceryTableBody = document.getElementById('grocery-table-body');
+      groceryTableBody.innerHTML = '';
 
-      incomeTable.innerHTML = data.income.map((e, i) => `
-        <tr>
-          <td class="amount-green">₱${e.amount.toLocaleString()}</td>
-          <td><button class="btn btn-sm btn-danger" onclick="deleteEntry('income', ${i})">Delete</button></td>
-        </tr>`).join('');
+      groceryList.forEach(({ description, quantity, amount }, index) => {
+        const row = document.createElement('tr');
 
-      expensesTable.innerHTML = data.expenses.map((e, i) => `
-        <tr>
-          <td onclick="makeEditable(this, 'expenses', ${i}, 'desc')">${e.desc}</td>
-          <td class="amount-red" onclick="makeEditable(this, 'expenses', ${i}, 'amount')">₱${parseFloat(e.amount).toLocaleString()}</td>
-          <td><button class="btn btn-sm btn-danger" onclick="deleteEntry('expenses', ${i})">Delete</button></td>
-        </tr>`).join('');
+        // Description input
+        const descriptionTd = document.createElement('td');
+        descriptionTd.innerHTML = `<input type="text" value="${description}" class="form-control" onchange="updateGroceryField(${index}, 'description', this.value)">`;
 
-      groceriesTable.innerHTML = data.groceries.map((e, i) => `
-        <tr>
-          <td onclick="makeEditable(this, 'groceries', ${i}, 'desc')">${e.desc}</td>
-          <td class="amount-red" onclick="makeEditable(this, 'groceries', ${i}, 'amount')">₱${parseFloat(e.amount).toLocaleString()}</td>
-          <td><button class="btn btn-sm btn-danger" onclick="deleteEntry('groceries', ${i})">Delete</button></td>
-        </tr>`).join('');
+        // Quantity input
+        const quantityTd = document.createElement('td');
+        quantityTd.innerHTML = `<input type="number" value="${quantity}" class="form-control" min="0" onchange="updateGroceryField(${index}, 'quantity', this.value)">`;
 
-      const totalExpenses = [...data.expenses, ...data.groceries].reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
-      const totalIncome = data.income.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
-      const runningBalance = totalIncome - totalExpenses;
+        // Amount input
+        const amountTd = document.createElement('td');
+        amountTd.innerHTML = `<input type="number" value="${amount}" class="form-control" min="0" onchange="updateGroceryField(${index}, 'amount', this.value)">`;
 
-      document.getElementById('total-expenses').textContent = `₱${totalExpenses.toLocaleString()}`;
-      const rbEl = document.getElementById('running-balance');
-      rbEl.textContent = `₱${runningBalance.toLocaleString()}`;
-      rbEl.className = runningBalance >= 0 ? 'amount-green' : 'amount-red';
+        // Delete button
+        const actionTd = document.createElement('td');
+        actionTd.innerHTML = `<button class="btn btn-danger btn-sm" onclick="confirmGroceryDelete(${index})">Delete</button>`;
+
+        // Append all cells to row
+        row.appendChild(descriptionTd);
+        row.appendChild(quantityTd);
+        row.appendChild(amountTd);
+        row.appendChild(actionTd);
+
+        groceryTableBody.appendChild(row);
+      });
     }
 
-    renderTables();
+    function confirmDelete(index) {
+      if (confirm('Are you sure you want to delete this expense?')) {
+        deleteExpenseRow(index);
+      }
+    }
+
+    function confirmGroceryDelete(index) {
+      if (confirm('Are you sure you want to delete this grocery entry?')) {
+        deleteGroceryRow(index);
+      }
+    }
+
+    function updateExpenseField(index, field, value) {
+      expenseList[index][field] = field === 'amount' ? parseFloat(value) || 0 : value;
+      updateInfo();
+      saveData(); // Save after editing expense
+    }
+
+    function updateGroceryField(index, field, value) {
+      groceryList[index][field] = field === 'quantity' || field === 'amount' ? parseFloat(value) || 0 : value;
+      updateInfo();
+      saveData(); // Save after editing grocery
+    }
+
+    function updateInfo() {
+      const totalIncome = incomeList.reduce((total, amount) => total + amount, 0);
+      const totalExpense = expenseList.reduce((total, expense) => total + parseFloat(expense.amount || 0), 0);
+      const totalGrocery = groceryList.reduce((total, grocery) => total + parseFloat(grocery.amount || 0), 0);
+      const totalExpenseAll = totalExpense + totalGrocery;
+      const balance = totalIncome - totalExpenseAll;
+
+      document.getElementById('income-total').innerText = totalIncome.toFixed(2);
+      document.getElementById('expense-total').innerText = totalExpenseAll.toFixed(2);
+      document.getElementById('balance-total').innerText = balance.toFixed(2);
+    }
+
+    function updateMonthTitle() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const month = urlParams.get('month');
+      const monthNames = {
+        jan: 'January', feb: 'February', mar: 'March', apr: 'April', may: 'May', jun: 'June',
+        jul: 'July', aug: 'August', sep: 'September', oct: 'October', nov: 'November', dec: 'December'
+      };
+
+      document.getElementById('month-title').textContent = monthNames[month] || 'Invalid month';
+    }
+
+    window.onload = function() {
+      loadData(); // Load saved data
+      updateMonthTitle();
+      displayIncome();
+      displayExpense();
+      displayGrocery();
+      updateInfo(); // Update totals on load
+    };
   </script>
 </body>
 </html>
