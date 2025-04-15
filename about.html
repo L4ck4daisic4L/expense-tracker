@@ -18,8 +18,6 @@
 
     .container-about {
       padding: 50px 15px;
-      font-size: 1.6rem;
-      line-height: 1.8;
       max-width: 1000px;
       margin: 0 auto;
     }
@@ -55,8 +53,31 @@
       flex-direction: column;
     }
 
-    p {
+    .about-box {
+      background-color: #1a1a1a; /* Dark gray for contrast */
+      border: 1px solid #333; /* Subtle border */
+      border-radius: 15px; /* Rounded edges */
+      padding: 30px; /* Inner spacing */
+      margin: 20px 0; /* Outer spacing */
+      font-size: clamp(1rem, 1.8vw, 1.4rem); /* Proportional text size */
+      line-height: 1.8;
+    }
+
+    .about-box p, .about-box ul, .about-box ol {
       font-weight: normal; /* Ensures no bold text */
+      margin-bottom: 1rem;
+    }
+
+    .about-box ul, .about-box ol {
+      padding-left: 30px;
+    }
+
+    .about-box ul li, .about-box ol li {
+      margin-bottom: 0.5rem;
+    }
+
+    .about-box ul ul {
+      padding-left: 20px;
     }
   </style>
 </head>
@@ -67,30 +88,39 @@
   <div class="scroll-container">
     <div class="scroll-content">
       <div class="container-about">
-        <p>This is a simple Income and Expenses Tracker to help you manage your money each month.</p>
+        <div class="about-box">
+          <p>This is a simple Income and Expenses Tracker to help you manage your money each month.</p>
 
-        <p>You can:</p>
-        <p>- Add your income – like salary or side hustle money.</p>
-        <p>- List your expenses – like rent, bills, or subscriptions.</p>
-        <p>- Track your groceries – perfect for keeping an eye on your grocery spending.</p>
+          <p>You can:</p>
+          <ul>
+            <li>Add your income – like salary or side hustle money.</li>
+            <li>List your expenses – like rent, bills, or subscriptions.</li>
+            <li>Track your groceries – perfect for keeping an eye on your grocery spending.</li>
+          </ul>
 
-        <p>💡 Tip: The Groceries calculator is a tool when you're out shopping.<br>
-        Use it to list your grocery items and amounts, this will not be added to expense.<br>
-        It will show you the total, so you don’t go over your budget while you shop.</p>
+          <p>💡 Tip: The Groceries calculator is a tool when you're out shopping.<br>
+          Use it to list your grocery items and amounts, this will not be added to expense.<br>
+          It will show you the total, so you don’t go over your budget while you shop.</p>
 
-        <p>Everything is saved only on your device using your browser. Nothing goes online or to any server, so your data is private.<br>
-        Just don’t clear your browser storage or switch devices, or you’ll lose your data.</p>
+          <p>Everything is saved only on your device using your browser. Nothing goes online or to any server, so your data is private.<br>
+          Just don’t clear your browser storage or switch devices, or you’ll lose your data.</p>
 
-        <p>How it works:</p>
-        <p>1. From the home page, click the month you want to work on.</p>
-        <p>2. On the next page, you can:</p>
-        <p>&nbsp;&nbsp;- Add or remove income.<br>
-           &nbsp;&nbsp;- Add or remove expenses.<br>
-           &nbsp;&nbsp;- Add or remove grocery items.<br>
-           &nbsp;&nbsp;- See your total income, total spending, and how much money is left.</p>
-        <p>3. You can go back anytime or view a summary of all months.</p>
+          <p>How it works:</p>
+          <ol>
+            <li>From the home page, click the month you want to work on.</li>
+            <li>On the next page, you can:
+              <ul>
+                <li>Add or remove income.</li>
+                <li>Add or remove expenses.</li>
+                <li>Add or remove grocery items.</li>
+                <li>See your total income, total spending, and how much money is left.</li>
+              </ul>
+            </li>
+            <li>You can go back anytime or view a summary of all months.</li>
+          </ol>
 
-        <p>No logins, no downloads. Just open the page and start tracking.</p>
+          <p>No logins, no downloads. Just open the page and start tracking.</p>
+        </div>
       </div>
     </div>
   </div>
