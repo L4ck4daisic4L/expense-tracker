@@ -121,6 +121,15 @@
       line-height: 28px;
       font-size: 14px;
     }
+    .groceries-calculator-total {
+      background-color: #2c2f36;
+      color: #f8f9fa;
+      padding: 6px 12px;
+      border-radius: 12px;
+      border: 1px solid #444;
+      font-size: 14px;
+      margin: 0 10px;
+    }
   </style>
 </head>
 <body>
@@ -187,6 +196,9 @@
     <div class="groceries-calculator-section">
       <div class="groceries-calculator-header">
         <h4>Groceries Calculator</h4>
+        <div class="groceries-calculator-total">
+          Total: ₱ <span id="groceries-calculator-total-amount">0.00</span>
+        </div>
         <button class="btn btn-add-grocery" onclick="addGroceryCalculatorRow()">+ Add Entry</button>
       </div>
 
@@ -330,14 +342,14 @@
         "Office Supplies",
         "Emergency Expenses",
         "Travel Expenses (Hotel, Flights, etc.)",
-        "Others" // Added new subcategory
+        "Others"
       ]
     };
 
     let incomeList = [];
     let expenseList = [];
-    let groceriesCalculatorList = []; // Renamed from groceryList
-    let groceryList = []; // New list for new Grocery section
+    let groceriesCalculatorList = [];
+    let groceryList = [];
     let currentMonth = '';
 
     // Get the current month from URL
@@ -355,8 +367,8 @@
         const data = JSON.parse(savedData);
         incomeList = data.incomeList || [];
         expenseList = data.expenseList || [];
-        groceriesCalculatorList = data.groceriesCalculatorList || []; // Updated
-        groceryList = data.groceryList || []; // New
+        groceriesCalculatorList = data.groceriesCalculatorList || [];
+        groceryList = data.groceryList || [];
       }
     }
 
@@ -365,8 +377,8 @@
       const data = {
         incomeList,
         expenseList,
-        groceriesCalculatorList, // Updated
-        groceryList // New
+        groceriesCalculatorList,
+        groceryList
       };
       localStorage.setItem(`budget_${currentMonth}`, JSON.stringify(data));
     }
@@ -421,12 +433,14 @@
       };
       groceriesCalculatorList.push(row);
       displayGroceriesCalculator();
+      updateGroceriesCalculatorTotal();
       saveData();
     }
 
     function deleteGroceryCalculatorRow(index) {
       groceriesCalculatorList.splice(index, 1);
       displayGroceriesCalculator();
+      updateGroceriesCalculatorTotal();
       saveData();
     }
 
@@ -569,6 +583,12 @@
 
         groceriesCalculatorTableBody.appendChild(row);
       });
+      updateGroceriesCalculatorTotal();
+    }
+
+    function updateGroceriesCalculatorTotal() {
+      const total = groceriesCalculatorList.reduce((sum, item) => sum + (item.amount * item.quantity), 0);
+      document.getElementById('groceries-calculator-total-amount').innerText = total.toFixed(2);
     }
 
     function displayGrocery() {
@@ -629,6 +649,7 @@
         groceriesCalculatorList[index].total = groceriesCalculatorList[index].amount * groceriesCalculatorList[index].quantity;
       }
       displayGroceriesCalculator();
+      updateGroceriesCalculatorTotal();
       saveData();
     }
 
@@ -638,6 +659,7 @@
       groceriesCalculatorList[index].quantity = quantity;
       groceriesCalculatorList[index].total = groceriesCalculatorList[index].amount * quantity;
       displayGroceriesCalculator();
+      updateGroceriesCalculatorTotal();
       saveData();
     }
 
@@ -678,6 +700,7 @@
       displayGroceriesCalculator();
       displayGrocery();
       updateInfo();
+      updateGroceriesCalculatorTotal();
     };
   </script>
 </body>
