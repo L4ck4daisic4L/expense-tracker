@@ -46,7 +46,7 @@
     hr {
       border-color: #444;
     }
-    .income-section, .expense-section, .grocery-section {
+    .income-section, .expense-section, .grocery-section, .groceries-calculator-section {
       margin-top: 20px;
     }
     .back-btn {
@@ -83,12 +83,12 @@
     .btn-add-grocery:hover {
       background-color: #218838;
     }
-    .expense-header, .grocery-header {
+    .expense-header, .grocery-header, .groceries-calculator-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    .expense-header h4, .grocery-header h4 {
+    .expense-header h4, .grocery-header h4, .groceries-calculator-header h4 {
       margin-bottom: 0;
     }
     .bottom-left-info {
@@ -113,6 +113,13 @@
     .table th, .table td {
       padding: 8px;
       vertical-align: middle;
+    }
+    .quantity-btn {
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      line-height: 28px;
+      font-size: 14px;
     }
   </style>
 </head>
@@ -176,19 +183,42 @@
       </table>
     </div>
 
-    <!-- Grocery Section -->
-    <div class="grocery-section">
-      <div class="grocery-header">
-        <h4>Groceries</h4>
-        <button class="btn btn-add-grocery" onclick="addGroceryRow()">+ Add Entry</button>
+    <!-- Groceries Calculator Section (Renamed) -->
+    <div class="groceries-calculator-section">
+      <div class="groceries-calculator-header">
+        <h4>Groceries Calculator</h4>
+        <button class="btn btn-add-grocery" onclick="addGroceryCalculatorRow()">+ Add Entry</button>
       </div>
 
-      <!-- Table for groceries -->
+      <!-- Table for groceries calculator -->
       <table class="table table-striped">
         <thead>
           <tr>
             <th>Description</th>
+            <th>Amount</th>
             <th>Quantity</th>
+            <th>Total</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="groceries-calculator-table-body">
+          <!-- Groceries calculator rows will be added here -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- New Grocery Section -->
+    <div class="grocery-section">
+      <div class="grocery-header">
+        <h4>Grocery</h4>
+        <button class="btn btn-add-grocery" onclick="addGroceryRow()">+ Add Entry</button>
+      </div>
+
+      <!-- Table for grocery -->
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Description</th>
             <th>Amount</th>
             <th>Action</th>
           </tr>
@@ -247,9 +277,9 @@
         "Haircuts",
         "Skincare Products",
         "Makeup",
-        "toiletries (Shampoo, Soap, etc.)",
+        "Toiletries (Shampoo, Soap, etc.)",
         "Clothing & Accessories",
-        "Shoes/F stellwear"
+        "Shoes/Footwear"
       ],
       "Entertainment": [
         "Subscriptions (Netflix, Spotify, etc.)",
@@ -299,13 +329,15 @@
         "Subscriptions (Magazines, Memberships)",
         "Office Supplies",
         "Emergency Expenses",
-        "Travel Expenses (Hotel, Flights, etc.)"
+        "Travel Expenses (Hotel, Flights, etc.)",
+        "Others" // Added new subcategory
       ]
     };
 
     let incomeList = [];
     let expenseList = [];
-    let groceryList = [];
+    let groceriesCalculatorList = []; // Renamed from groceryList
+    let groceryList = []; // New list for new Grocery section
     let currentMonth = '';
 
     // Get the current month from URL
@@ -323,7 +355,8 @@
         const data = JSON.parse(savedData);
         incomeList = data.incomeList || [];
         expenseList = data.expenseList || [];
-        groceryList = data.groceryList || [];
+        groceriesCalculatorList = data.groceriesCalculatorList || []; // Updated
+        groceryList = data.groceryList || []; // New
       }
     }
 
@@ -332,7 +365,8 @@
       const data = {
         incomeList,
         expenseList,
-        groceryList
+        groceriesCalculatorList, // Updated
+        groceryList // New
       };
       localStorage.setItem(`budget_${currentMonth}`, JSON.stringify(data));
     }
@@ -346,7 +380,7 @@
         incomeInput.value = '';
         displayIncome();
         updateInfo();
-        saveData(); // Save after adding income
+        saveData();
       } else {
         alert('Please enter a valid amount.');
       }
@@ -356,7 +390,7 @@
       incomeList.splice(index, 1);
       displayIncome();
       updateInfo();
-      saveData(); // Save after deleting income
+      saveData();
     }
 
     function addExpenseRow() {
@@ -368,32 +402,50 @@
       };
       expenseList.push(row);
       displayExpense();
-      saveData(); // Save after adding expense row
+      saveData();
     }
 
     function deleteExpenseRow(index) {
       expenseList.splice(index, 1);
       displayExpense();
       updateInfo();
-      saveData(); // Save after deleting expense
+      saveData();
+    }
+
+    function addGroceryCalculatorRow() {
+      const row = {
+        description: '',
+        amount: 0,
+        quantity: 1,
+        total: 0
+      };
+      groceriesCalculatorList.push(row);
+      displayGroceriesCalculator();
+      saveData();
+    }
+
+    function deleteGroceryCalculatorRow(index) {
+      groceriesCalculatorList.splice(index, 1);
+      displayGroceriesCalculator();
+      saveData();
     }
 
     function addGroceryRow() {
       const row = {
         description: '',
-        quantity: 0,
         amount: 0
       };
       groceryList.push(row);
       displayGrocery();
-      saveData(); // Save after adding grocery row
+      updateInfo();
+      saveData();
     }
 
     function deleteGroceryRow(index) {
       groceryList.splice(index, 1);
       displayGrocery();
       updateInfo();
-      saveData(); // Save after deleting grocery
+      saveData();
     }
 
     function displayIncome() {
@@ -432,8 +484,8 @@
         });
         mainCategorySelect.onchange = () => {
           updateExpenseField(index, 'mainCategory', mainCategorySelect.value);
-          updateExpenseField(index, 'subCategory', ''); // Reset subcategory when main category changes
-          displayExpense(); // Refresh to update subcategory dropdown
+          updateExpenseField(index, 'subCategory', '');
+          displayExpense();
         };
         mainCategoryTd.appendChild(mainCategorySelect);
 
@@ -475,24 +527,64 @@
       });
     }
 
+    function displayGroceriesCalculator() {
+      const groceriesCalculatorTableBody = document.getElementById('groceries-calculator-table-body');
+      groceriesCalculatorTableBody.innerHTML = '';
+
+      groceriesCalculatorList.forEach(({ description, amount, quantity, total }, index) => {
+        const row = document.createElement('tr');
+
+        // Description input
+        const descriptionTd = document.createElement('td');
+        descriptionTd.innerHTML = `<input type="text" value="${description}" class="form-control" onchange="updateGroceriesCalculatorField(${index}, 'description', this.value)">`;
+
+        // Amount input
+        const amountTd = document.createElement('td');
+        amountTd.innerHTML = `<input type="number" value="${amount}" class="form-control" min="0" step="0.01" onchange="updateGroceriesCalculatorField(${index}, 'amount', this.value)">`;
+
+        // Quantity input with plus/minus buttons
+        const quantityTd = document.createElement('td');
+        quantityTd.innerHTML = `
+          <div class="input-group">
+            <button class="btn btn-outline-secondary quantity-btn" onclick="updateGroceriesCalculatorQuantity(${index}, -1)">-</button>
+            <input type="number" value="${quantity}" class="form-control text-center" min="1" onchange="updateGroceriesCalculatorField(${index}, 'quantity', this.value)" style="width: 60px;">
+            <button class="btn btn-outline-secondary quantity-btn" onclick="updateGroceriesCalculatorQuantity(${index}, 1)">+</button>
+          </div>
+        `;
+
+        // Total display
+        const totalTd = document.createElement('td');
+        totalTd.textContent = `₱ ${(amount * quantity).toFixed(2)}`;
+
+        // Delete button
+        const actionTd = document.createElement('td');
+        actionTd.innerHTML = `<button class="btn btn-danger btn-sm" onclick="confirmGroceriesCalculatorDelete(${index})">Delete</button>`;
+
+        // Append all cells to row
+        row.appendChild(descriptionTd);
+        row.appendChild(amountTd);
+        row.appendChild(quantityTd);
+        row.appendChild(totalTd);
+        row.appendChild(actionTd);
+
+        groceriesCalculatorTableBody.appendChild(row);
+      });
+    }
+
     function displayGrocery() {
       const groceryTableBody = document.getElementById('grocery-table-body');
       groceryTableBody.innerHTML = '';
 
-      groceryList.forEach(({ description, quantity, amount }, index) => {
+      groceryList.forEach(({ description, amount }, index) => {
         const row = document.createElement('tr');
 
         // Description input
         const descriptionTd = document.createElement('td');
         descriptionTd.innerHTML = `<input type="text" value="${description}" class="form-control" onchange="updateGroceryField(${index}, 'description', this.value)">`;
 
-        // Quantity input
-        const quantityTd = document.createElement('td');
-        quantityTd.innerHTML = `<input type="number" value="${quantity}" class="form-control" min="0" onchange="updateGroceryField(${index}, 'quantity', this.value)">`;
-
         // Amount input
         const amountTd = document.createElement('td');
-        amountTd.innerHTML = `<input type="number" value="${amount}" class="form-control" min="0" onchange="updateGroceryField(${index}, 'amount', this.value)">`;
+        amountTd.innerHTML = `<input type="number" value="${amount}" class="form-control" min="0" step="0.01" onchange="updateGroceryField(${index}, 'amount', this.value)">`;
 
         // Delete button
         const actionTd = document.createElement('td');
@@ -500,7 +592,6 @@
 
         // Append all cells to row
         row.appendChild(descriptionTd);
-        row.appendChild(quantityTd);
         row.appendChild(amountTd);
         row.appendChild(actionTd);
 
@@ -514,6 +605,12 @@
       }
     }
 
+    function confirmGroceriesCalculatorDelete(index) {
+      if (confirm('Are you sure you want to delete this groceries calculator entry?')) {
+        deleteGroceryCalculatorRow(index);
+      }
+    }
+
     function confirmGroceryDelete(index) {
       if (confirm('Are you sure you want to delete this grocery entry?')) {
         deleteGroceryRow(index);
@@ -523,20 +620,38 @@
     function updateExpenseField(index, field, value) {
       expenseList[index][field] = field === 'amount' ? parseFloat(value) || 0 : value;
       updateInfo();
-      saveData(); // Save after editing expense
+      saveData();
+    }
+
+    function updateGroceriesCalculatorField(index, field, value) {
+      groceriesCalculatorList[index][field] = (field === 'amount' || field === 'quantity') ? parseFloat(value) || 0 : value;
+      if (field === 'amount' || field === 'quantity') {
+        groceriesCalculatorList[index].total = groceriesCalculatorList[index].amount * groceriesCalculatorList[index].quantity;
+      }
+      displayGroceriesCalculator();
+      saveData();
+    }
+
+    function updateGroceriesCalculatorQuantity(index, change) {
+      let quantity = groceriesCalculatorList[index].quantity + change;
+      if (quantity < 1) quantity = 1; // Prevent quantity from going below 1
+      groceriesCalculatorList[index].quantity = quantity;
+      groceriesCalculatorList[index].total = groceriesCalculatorList[index].amount * quantity;
+      displayGroceriesCalculator();
+      saveData();
     }
 
     function updateGroceryField(index, field, value) {
-      groceryList[index][field] = field === 'quantity' || field === 'amount' ? parseFloat(value) || 0 : value;
+      groceryList[index][field] = field === 'amount' ? parseFloat(value) || 0 : value;
       updateInfo();
-      saveData(); // Save after editing grocery
+      saveData();
     }
 
     function updateInfo() {
       const totalIncome = incomeList.reduce((total, amount) => total + amount, 0);
       const totalExpense = expenseList.reduce((total, expense) => total + parseFloat(expense.amount || 0), 0);
-      const totalGrocery = groceryList.reduce((total, grocery) => total + parseFloat(grocery.amount || 0), 0);
-      const totalExpenseAll = totalExpense + totalGrocery;
+      const totalGrocery = groceryList.reduce((total, grocery) => total + parseFloat(grocery.amount || 0), 0); // Only new Grocery section
+      const totalExpenseAll = totalExpense + totalGrocery; // Exclude groceriesCalculatorList
       const balance = totalIncome - totalExpenseAll;
 
       document.getElementById('income-total').innerText = totalIncome.toFixed(2);
@@ -556,12 +671,13 @@
     }
 
     window.onload = function() {
-      loadData(); // Load saved data
+      loadData();
       updateMonthTitle();
       displayIncome();
       displayExpense();
+      displayGroceriesCalculator();
       displayGrocery();
-      updateInfo(); // Update totals on load
+      updateInfo();
     };
   </script>
 </body>
